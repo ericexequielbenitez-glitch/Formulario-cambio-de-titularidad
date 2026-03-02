@@ -2,33 +2,35 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Registro de llamada para Cambio de Titularidad</title>
+<title>Cambio de Titularidad</title>
 
 <style>
-body {
-  margin: 0;
-  font-family: Arial;
-  background: linear-gradient(135deg,#1fa2d6,#2bc0e4);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
+body{
+  margin:0;
+  font-family:Arial, sans-serif;
+  background:linear-gradient(135deg,#1fa2d6,#2bc0e4);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
 }
 
-.container {
-  background: white;
-  width: 420px;
-  padding: 30px;
-  border-radius: 12px;
-  box-shadow: 0 15px 40px rgba(0,0,0,0.2);
-  overflow-y: auto;
-  max-height: 95vh;
+.container{
+  background:white;
+  width:420px;
+  padding:30px;
+  border-radius:12px;
+  box-shadow:0 15px 40px rgba(0,0,0,0.2);
+  overflow-y:auto;
+  max-height:95vh;
 }
 
-.logo { text-align:center; margin-bottom:15px; }
-.logo img { width:140px; }
+.logo{text-align:center;margin-bottom:15px;}
+.logo img{width:140px;}
 
-input, select {
+h3{text-align:center;margin-bottom:20px;}
+
+input,select{
   width:100%;
   padding:10px;
   margin-bottom:12px;
@@ -37,7 +39,7 @@ input, select {
   box-sizing:border-box;
 }
 
-button {
+button{
   width:100%;
   padding:12px;
   background:#0099cc;
@@ -48,9 +50,13 @@ button {
   cursor:pointer;
 }
 
-button:disabled { background:#7fbfd4; }
+button:disabled{background:#7fbfd4;}
 
-.message { margin-top:20px; text-align:center; font-weight:bold; }
+.message{
+  margin-top:20px;
+  text-align:center;
+  font-weight:bold;
+}
 </style>
 </head>
 
@@ -59,7 +65,7 @@ button:disabled { background:#7fbfd4; }
 <div class="container">
 
 <div class="logo">
-<img src="logo.png">
+<img src="logo.png" alt="Personal">
 </div>
 
 <h3>Cambio de Titularidad</h3>
@@ -122,34 +128,33 @@ form.addEventListener("submit", async function(e){
   btn.disabled = true;
   btn.innerText = "Enviando...";
 
-  const fileFrente = document.getElementById("fotoFrente").files[0];
-  const fileDorso = document.getElementById("fotoDorso").files[0];
+  try {
 
-  const base64Frente = await convertirBase64(fileFrente);
-  const base64Dorso = await convertirBase64(fileDorso);
+    const fileFrente = document.getElementById("fotoFrente").files[0];
+    const fileDorso = document.getElementById("fotoDorso").files[0];
 
-  const formData = new FormData(form);
-  formData.append("foto_frente", base64Frente);
-  formData.append("foto_dorso", base64Dorso);
+    const base64Frente = await convertirBase64(fileFrente);
+    const base64Dorso = await convertirBase64(fileDorso);
 
-  fetch(scriptURL,{
-    method:"POST",
-    body: formData
-  })
-  .then(res=>res.text())
-  .then(result=>{
-      if(result === "YA_EXISTE"){
-          mensaje.innerText = "Ya registraste una solicitud en las últimas 24hs.";
-      } else {
-          mensaje.innerText = "Solicitud registrada. Nº de caso: " + result;
-      }
-      btn.style.display="none";
-      form.style.display="none";
-  })
-  .catch(()=> alert("Error al enviar"));
+    const formData = new FormData(form);
+    formData.append("foto_frente", base64Frente);
+    formData.append("foto_dorso", base64Dorso);
+
+    await fetch(scriptURL,{
+      method:"POST",
+      body: formData,
+      mode:"no-cors"
+    });
+
+    mensaje.innerText = "Solicitud enviada correctamente. Te contactaremos dentro de 24 a 48hs hábiles.";
+    form.style.display="none";
+
+  } catch(err){
+    mensaje.innerText = "Error al enviar el formulario.";
+  }
+
 });
 </script>
 
 </body>
 </html>
-
