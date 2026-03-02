@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Solicitud de llamado para Cambio de Titularidad</title>
+<title>Cambio de Titularidad</title>
 
 <style>
 body {
@@ -50,7 +50,6 @@ input, select {
 
 input[readonly] {
   background-color: #f3f3f3;
-  cursor: not-allowed;
   color: #555;
 }
 
@@ -72,25 +71,8 @@ button {
   cursor: pointer;
 }
 
-button:disabled {
-  background-color: #7fbfd4;
-}
-
-.message-container {
-  display: none;
-  margin-top: 20px;
-  text-align: center;
-}
-
-.message-container img {
-  width: 60px;
-  margin-bottom: 10px;
-}
-
-.case-number {
-  font-size: 20px;
-  font-weight: bold;
-  margin-top: 8px;
+button:hover {
+  background-color: #007aa3;
 }
 </style>
 </head>
@@ -105,26 +87,43 @@ button:disabled {
 
   <h2>Cambio de Titularidad</h2>
 
-  <form id="formulario" enctype="multipart/form-data">
+  <!-- 🔥 ENVÍO DIRECTO AL SCRIPT -->
+  <form 
+    action="https://script.google.com/macros/s/AKfycbyrjceGb0NgvcULCOmH-ReJZRA3f4puiD6XzOkuVvz6lY-fvVJUQj1iq8OY-C2FJyMD/exec" 
+    method="POST" 
+    enctype="multipart/form-data"
+  >
 
+    <!-- 1 -->
     <input type="text" name="dni_actual" placeholder="DNI del titular actual" required>
+
+    <!-- 2 -->
     <input type="text" name="dni_nuevo" placeholder="DNI del titular nuevo" required>
+
+    <!-- 3 -->
     <input type="text" name="nombre_nuevo" placeholder="Nombre titular nuevo" required>
+
+    <!-- 4 -->
     <input type="tel" name="telefono_nuevo" placeholder="N° de contacto del titular nuevo" required>
 
+    <!-- 5 -->
     <label>Foto Frente DNI</label>
     <input type="file" name="foto_frente" accept="image/*" required>
 
+    <!-- 6 -->
     <label>Foto Dorso DNI</label>
     <input type="file" name="foto_dorso" accept="image/*" required>
 
+    <!-- 7 (motivo fijo) -->
     <label>Motivo</label>
     <input type="text" value="Cambio de titularidad" readonly>
     <input type="hidden" name="motivo" value="Cambio de titularidad">
 
+    <!-- 8 -->
     <label>Fecha a llamar</label>
     <input type="date" name="fecha_llamar" required>
 
+    <!-- 9 -->
     <label>Horario a llamar</label>
     <select name="horario_llamar" required>
       <option value="">Seleccionar horario</option>
@@ -138,65 +137,7 @@ button:disabled {
 
   </form>
 
-  <div class="message-container" id="message"></div>
-
 </div>
-
-<script>
-
-const scriptURL = "https://script.google.com/macros/s/AKfycbyPNgiXIM16LpRz0_jdxXF9rVlbf1uQ7Lmd9Mbyrm6dIhv6Aj1-Q7jNFEPpgB78XFWY/exec";
-
-const form = document.getElementById("formulario");
-const message = document.getElementById("message");
-const button = form.querySelector("button");
-
-let enviado = false;
-
-form.addEventListener("submit", function(e) {
-  e.preventDefault();
-
-  if (enviado) return;
-  enviado = true;
-
-  button.disabled = true;
-  button.innerText = "Enviando...";
-
-  const formData = new FormData(form);
-
-  fetch(scriptURL, {
-    method: "POST",
-    body: formData
-  })
-  .then(response => response.text())
-  .then(result => {
-
-    form.style.display = "none";
-
-    if (result === "YA_EXISTE") {
-
-      message.innerHTML = `
-        <img src="x-roja.png">
-        <div>Ya registraste una solicitud en las últimas 24 horas.</div>
-      `;
-
-    } else {
-
-      message.innerHTML = `
-        <img src="tilde-verificacion.png">
-        <div>Solicitud registrada correctamente</div>
-        <div class="case-number">${result}</div>
-      `;
-    }
-
-    message.style.display = "block";
-  })
-  .catch(error => {
-    alert("Error al enviar el formulario.");
-    console.error(error);
-  });
-
-});
-</script>
 
 </body>
 </html>
