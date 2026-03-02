@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Solicitud de llamado para Cambio de Titularidad</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #1fa2d6, #2bc0e4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.container {
+  background: white;
+  width: 430px;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+  overflow-y: auto;
+  max-height: 95vh;
+}
+
+.logo {
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.logo img {
+  width: 150px;
+}
+
+h2 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+input, select {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  margin-bottom: 12px;
+  box-sizing: border-box;
+}
+
+input[readonly] {
+  background-color: #f3f3f3;
+  cursor: not-allowed;
+  color: #555;
+}
+
+label {
+  font-size: 13px;
+  font-weight: bold;
+  display: block;
+  margin-bottom: 5px;
+}
+
+button {
+  width: 100%;
+  padding: 13px;
+  background-color: #0099cc;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+button:disabled {
+  background-color: #7fbfd4;
+}
+
+.message-container {
+  display: none;
+  margin-top: 20px;
+  text-align: center;
+}
+
+.message-container img {
+  width: 60px;
+  margin-bottom: 10px;
+}
+
+.case-number {
+  font-size: 20px;
+  font-weight: bold;
+  margin-top: 8px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <div class="logo">
+    <img src="logo.png" alt="Personal">
+  </div>
+
+  <h2>Cambio de Titularidad</h2>
+
+  <form id="formulario" enctype="multipart/form-data">
+
+    <input type="text" name="dni_actual" placeholder="DNI del titular actual" required>
+    <input type="text" name="dni_nuevo" placeholder="DNI del titular nuevo" required>
+    <input type="text" name="nombre_nuevo" placeholder="Nombre titular nuevo" required>
+    <input type="tel" name="telefono_nuevo" placeholder="N° de contacto del titular nuevo" required>
+
+    <label>Foto Frente DNI</label>
+    <input type="file" name="foto_frente" accept="image/*" required>
+
+    <label>Foto Dorso DNI</label>
+    <input type="file" name="foto_dorso" accept="image/*" required>
+
+    <label>Motivo</label>
+    <input type="text" value="Cambio de titularidad" readonly>
+    <input type="hidden" name="motivo" value="Cambio de titularidad">
+
+    <label>Fecha a llamar</label>
+    <input type="date" name="fecha_llamar" required>
+
+    <label>Horario a llamar</label>
+    <select name="horario_llamar" required>
+      <option value="">Seleccionar horario</option>
+      <option value="Lo antes posible">Lo antes posible</option>
+      <option value="A la mañana">A la mañana</option>
+      <option value="A la tarde">A la tarde</option>
+      <option value="A la noche">A la noche</option>
+    </select>
+
+    <button type="submit">Enviar solicitud</button>
+
+  </form>
+
+  <div class="message-container" id="message"></div>
+
+</div>
+
+<script>
+
+const scriptURL = "https://script.google.com/macros/s/AKfycbyPNgiXIM16LpRz0_jdxXF9rVlbf1uQ7Lmd9Mbyrm6dIhv6Aj1-Q7jNFEPpgB78XFWY/exec";
+
+const form = document.getElementById("formulario");
+const message = document.getElementById("message");
+const button = form.querySelector("button");
+
+let enviado = false;
+
+form.addEventListener("submit", function(e) {
+  e.preventDefault();
+
+  if (enviado) return;
+  enviado = true;
+
+  button.disabled = true;
+  button.innerText = "Enviando...";
+
+  const formData = new FormData(form);
+
+  fetch(scriptURL, {
+    method: "POST",
+    body: formData
+  })
+  .then(response => response.text())
+  .then(result => {
+
+    form.style.display = "none";
+
+    if (result === "YA_EXISTE") {
+
+      message.innerHTML = `
+        <img src="x-roja.png">
+        <div>Ya registraste una solicitud en las últimas 24 horas.</div>
+      `;
+
+    } else {
+
+      message.innerHTML = `
+        <img src="tilde-verificacion.png">
+        <div>Solicitud registrada correctamente</div>
+        <div class="case-number">${result}</div>
+      `;
+    }
+
+    message.style.display = "block";
+  })
+  .catch(error => {
+    alert("Error al enviar el formulario.");
+    console.error(error);
+  });
+
+});
+</script>
+
+</body>
+</html>
