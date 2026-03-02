@@ -2,13 +2,13 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Cambio de Titularidad</title>
+<title>Registro de llamada para Cambio de Titularidad</title>
 
 <style>
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
-  background: linear-gradient(135deg, #1fa2d6, #2bc0e4);
+  font-family: Arial;
+  background: linear-gradient(135deg,#1fa2d6,#2bc0e4);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -17,7 +17,7 @@ body {
 
 .container {
   background: white;
-  width: 430px;
+  width: 420px;
   padding: 30px;
   border-radius: 12px;
   box-shadow: 0 15px 40px rgba(0,0,0,0.2);
@@ -25,55 +25,32 @@ body {
   max-height: 95vh;
 }
 
-.logo {
-  text-align: center;
-  margin-bottom: 15px;
-}
-
-.logo img {
-  width: 150px;
-}
-
-h2 {
-  text-align: center;
-  margin-bottom: 20px;
-}
+.logo { text-align:center; margin-bottom:15px; }
+.logo img { width:140px; }
 
 input, select {
-  width: 100%;
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  margin-bottom: 12px;
-  box-sizing: border-box;
-}
-
-input[readonly] {
-  background-color: #f3f3f3;
-  color: #555;
-}
-
-label {
-  font-size: 13px;
-  font-weight: bold;
-  display: block;
-  margin-bottom: 5px;
+  width:100%;
+  padding:10px;
+  margin-bottom:12px;
+  border-radius:8px;
+  border:1px solid #ccc;
+  box-sizing:border-box;
 }
 
 button {
-  width: 100%;
-  padding: 13px;
-  background-color: #0099cc;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-weight: bold;
-  cursor: pointer;
+  width:100%;
+  padding:12px;
+  background:#0099cc;
+  color:white;
+  border:none;
+  border-radius:8px;
+  font-weight:bold;
+  cursor:pointer;
 }
 
-button:hover {
-  background-color: #007aa3;
-}
+button:disabled { background:#7fbfd4; }
+
+.message { margin-top:20px; text-align:center; font-weight:bold; }
 </style>
 </head>
 
@@ -81,63 +58,97 @@ button:hover {
 
 <div class="container">
 
-  <div class="logo">
-    <img src="logo.png" alt="Personal">
-  </div>
+<div class="logo">
+<img src="logo.png">
+</div>
 
-  <h2>Cambio de Titularidad</h2>
+<h3>Cambio de Titularidad</h3>
 
-  <!-- 🔥 ENVÍO DIRECTO AL SCRIPT -->
-  <form 
-    action="https://script.google.com/macros/s/AKfycbyrjceGb0NgvcULCOmH-ReJZRA3f4puiD6XzOkuVvz6lY-fvVJUQj1iq8OY-C2FJyMD/exec" 
-    method="POST" 
-    enctype="multipart/form-data"
-  >
+<form id="formulario">
 
-    <!-- 1 -->
-    <input type="text" name="dni_actual" placeholder="DNI del titular actual" required>
+<input type="text" name="dni_actual" placeholder="DNI titular actual" required>
+<input type="text" name="dni_nuevo" placeholder="DNI titular nuevo" required>
+<input type="text" name="nombre_nuevo" placeholder="Nombre titular nuevo" required>
+<input type="tel" name="telefono_nuevo" placeholder="Teléfono contacto" required>
 
-    <!-- 2 -->
-    <input type="text" name="dni_nuevo" placeholder="DNI del titular nuevo" required>
+<label>Foto Frente DNI</label>
+<input type="file" id="fotoFrente" accept="image/*" required>
 
-    <!-- 3 -->
-    <input type="text" name="nombre_nuevo" placeholder="Nombre titular nuevo" required>
+<label>Foto Dorso DNI</label>
+<input type="file" id="fotoDorso" accept="image/*" required>
 
-    <!-- 4 -->
-    <input type="tel" name="telefono_nuevo" placeholder="N° de contacto del titular nuevo" required>
+<input type="hidden" name="motivo" value="Cambio de titularidad">
 
-    <!-- 5 -->
-    <label>Foto Frente DNI</label>
-    <input type="file" name="foto_frente" accept="image/*" required>
+<label>Fecha a llamar</label>
+<input type="date" name="fecha_llamar" required>
 
-    <!-- 6 -->
-    <label>Foto Dorso DNI</label>
-    <input type="file" name="foto_dorso" accept="image/*" required>
+<label>Horario</label>
+<select name="horario_llamar" required>
+<option value="">Seleccionar</option>
+<option>Lo antes posible</option>
+<option>A la mañana</option>
+<option>A la tarde</option>
+<option>A la noche</option>
+</select>
 
-    <!-- 7 (motivo fijo) -->
-    <label>Motivo</label>
-    <input type="text" value="Cambio de titularidad" readonly>
-    <input type="hidden" name="motivo" value="Cambio de titularidad">
+<button type="submit">Enviar solicitud</button>
 
-    <!-- 8 -->
-    <label>Fecha a llamar</label>
-    <input type="date" name="fecha_llamar" required>
+</form>
 
-    <!-- 9 -->
-    <label>Horario a llamar</label>
-    <select name="horario_llamar" required>
-      <option value="">Seleccionar horario</option>
-      <option value="Lo antes posible">Lo antes posible</option>
-      <option value="A la mañana">A la mañana</option>
-      <option value="A la tarde">A la tarde</option>
-      <option value="A la noche">A la noche</option>
-    </select>
-
-    <button type="submit">Enviar solicitud</button>
-
-  </form>
+<div class="message" id="mensaje"></div>
 
 </div>
+
+<script>
+
+const scriptURL = "https://script.google.com/macros/s/AKfycbzjVdpYS98SmfP5V7vUN0M_QW5gbVjTXu_2rDE5pbTREALy_rZXMWkZA-7mcUdtmvDg/exec";
+
+const form = document.getElementById("formulario");
+const mensaje = document.getElementById("mensaje");
+const btn = form.querySelector("button");
+
+function convertirBase64(file){
+  return new Promise((resolve,reject)=>{
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = ()=> resolve(reader.result.split(',')[1]);
+    reader.onerror = error => reject(error);
+  });
+}
+
+form.addEventListener("submit", async function(e){
+  e.preventDefault();
+
+  btn.disabled = true;
+  btn.innerText = "Enviando...";
+
+  const fileFrente = document.getElementById("fotoFrente").files[0];
+  const fileDorso = document.getElementById("fotoDorso").files[0];
+
+  const base64Frente = await convertirBase64(fileFrente);
+  const base64Dorso = await convertirBase64(fileDorso);
+
+  const formData = new FormData(form);
+  formData.append("foto_frente", base64Frente);
+  formData.append("foto_dorso", base64Dorso);
+
+  fetch(scriptURL,{
+    method:"POST",
+    body: formData
+  })
+  .then(res=>res.text())
+  .then(result=>{
+      if(result === "YA_EXISTE"){
+          mensaje.innerText = "Ya registraste una solicitud en las últimas 24hs.";
+      } else {
+          mensaje.innerText = "Solicitud registrada. Nº de caso: " + result;
+      }
+      btn.style.display="none";
+      form.style.display="none";
+  })
+  .catch(()=> alert("Error al enviar"));
+});
+</script>
 
 </body>
 </html>
